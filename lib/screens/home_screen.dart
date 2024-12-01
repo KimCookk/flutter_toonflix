@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:toonflix_app/models/webtoon_model.dart';
 import 'package:toonflix_app/services/api_service.dart';
+import 'package:toonflix_app/widgets/webtoonCard.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
@@ -30,23 +31,33 @@ class HomeScreen extends StatelessWidget {
         future: webtoons,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return ListView.separated(
-              scrollDirection: Axis.vertical,
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                return Text(snapshot.data![index].title);
-              },
-              separatorBuilder: (context, index) {
-                return const SizedBox(
-                  height: 20,
-                );
-              },
-            );
+            return makeWebToonList(snapshot);
           } else {
             return const CircularProgressIndicator();
           }
         },
       ),
+    );
+  }
+
+  ListView makeWebToonList(AsyncSnapshot<List<WebtoonModel>> snapshot) {
+    return ListView.separated(
+      padding: const EdgeInsets.all(15),
+      scrollDirection: Axis.horizontal,
+      itemCount: snapshot.data!.length,
+      itemBuilder: (context, index) {
+        WebtoonModel webtoon = snapshot.data![index];
+        return WebtoonCard(
+          title: webtoon.title,
+          thumb: webtoon.thumb,
+          id: webtoon.id,
+        );
+      },
+      separatorBuilder: (context, index) {
+        return const SizedBox(
+          width: 20,
+        );
+      },
     );
   }
 }
