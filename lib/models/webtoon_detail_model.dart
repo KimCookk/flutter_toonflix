@@ -1,27 +1,13 @@
 class WebtoonDetailModel {
-  String? title;
-  String? about;
-  String? genre;
-  String? age;
-  String? thumb;
+  final String? title, about, genre, age, thumb;
 
-  WebtoonDetailModel({
-    this.title,
-    this.about,
-    this.genre,
-    this.age,
-    this.thumb,
-  });
-
-  factory WebtoonDetailModel.fromJson(Map<String, dynamic> json) {
-    return WebtoonDetailModel(
-      title: json['title'] as String?,
-      about: json['about'] as String?,
-      genre: json['genre'] as String?,
-      age: json['age'] as String?,
-      thumb: json['thumb'] as String?,
-    );
-  }
+  //String get genre
+  WebtoonDetailModel.fromJson(Map<String, dynamic> json)
+      : title = json['title'],
+        about = json['about'],
+        genre = json['genre'],
+        age = json['age'],
+        thumb = json['thumb'];
 
   Map<String, dynamic> toJson() => {
         'title': title,

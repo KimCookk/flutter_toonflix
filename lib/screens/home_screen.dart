@@ -33,7 +33,9 @@ class HomeScreen extends StatelessWidget {
           if (snapshot.hasData) {
             return makeWebToonList(snapshot);
           } else {
-            return const CircularProgressIndicator();
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
           }
         },
       ),
