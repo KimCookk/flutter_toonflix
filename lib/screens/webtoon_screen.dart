@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:toonflix_app/models/webtoon_detail_model.dart';
 import 'package:toonflix_app/services/api_service.dart';
 import 'package:toonflix_app/models/episode_model.dart';
+import 'package:url_launcher/link.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class WebtoonScreen extends StatefulWidget {
   final String title, thumb, id;
@@ -114,30 +115,9 @@ class _WebtoonScreenState extends State<WebtoonScreen> {
                         child: Column(
                           children: [
                             for (var episode in episodes.reversed)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 5.0),
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    color: Colors.green,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(20)),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10.0),
-                                    child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(episode.title!),
-                                          const IconButton(
-                                            onPressed: null,
-                                            icon: Icon(Icons.chevron_right),
-                                          )
-                                        ]),
-                                  ),
-                                ),
+                              EpisodeButton(
+                                webtoonId: widget.id,
+                                episode: episode,
                               ),
                           ],
                         ),
@@ -147,6 +127,58 @@ class _WebtoonScreenState extends State<WebtoonScreen> {
                     }
                   }),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class EpisodeButton extends StatelessWidget {
+  const EpisodeButton({
+    super.key,
+    required this.episode,
+    required this.webtoonId,
+  });
+
+  final EpisodeModel episode;
+  final String webtoonId;
+
+  void tappedButton() async {
+    String url =
+        'https://comic.naver.com/webtoon/detail?titleId=$webtoonId&no=${episode.id}';
+    launchUrlString(url);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapUp: (details) {
+        tappedButton();
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5.0),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.green,
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      overflow: TextOverflow.ellipsis,
+                      episode.title!,
+                    ),
+                  ),
+                  const IconButton(
+                    onPressed: null,
+                    icon: Icon(Icons.chevron_right),
+                  )
+                ]),
           ),
         ),
       ),

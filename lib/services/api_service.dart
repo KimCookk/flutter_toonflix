@@ -42,6 +42,7 @@ class ApiService {
   Future<List<EpisodeModel>> getEpisodesById(String id) async {
     List<EpisodeModel> episodeInstances = [];
     final url = Uri.parse('$baseUrl/$id/$episodes');
+    print(url.toString());
     final response = await http.get(url);
     if (response.statusCode == 200) {
       final List<dynamic> episodes = jsonDecode(response.body);
