@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:html_unescape/html_unescape.dart';
 import 'package:http/http.dart' as http;
 import 'package:toonflix_app/models/episode_model.dart';
 import 'package:toonflix_app/models/webtoon_model.dart';
@@ -15,7 +15,8 @@ class ApiService {
     final url = Uri.parse('$baseUrl/$today');
     final response = await http.get(url);
     if (response.statusCode == 200) {
-      final List<dynamic> webtoons = jsonDecode(response.body);
+      final List<dynamic> webtoons =
+          jsonDecode(HtmlUnescape().convert(response.body));
       for (var webtoon in webtoons) {
         var webtoonModel = WebtoonModel.fromJson(webtoon);
         webtoonInstances.add(webtoonModel);
@@ -30,8 +31,8 @@ class ApiService {
     final url = Uri.parse('$baseUrl/$id');
     final response = await http.get(url);
     if (response.statusCode == 200) {
-      WebtoonDetailModel webtoonDetailModel =
-          WebtoonDetailModel.fromJson(jsonDecode(response.body));
+      WebtoonDetailModel webtoonDetailModel = WebtoonDetailModel.fromJson(
+          jsonDecode(HtmlUnescape().convert(response.body)));
 
       return webtoonDetailModel;
     } else {
@@ -42,10 +43,10 @@ class ApiService {
   Future<List<EpisodeModel>> getEpisodesById(String id) async {
     List<EpisodeModel> episodeInstances = [];
     final url = Uri.parse('$baseUrl/$id/$episodes');
-    print(url.toString());
     final response = await http.get(url);
     if (response.statusCode == 200) {
-      final List<dynamic> episodes = jsonDecode(response.body);
+      final List<dynamic> episodes =
+          jsonDecode(HtmlUnescape().convert(response.body));
       for (var episode in episodes) {
         EpisodeModel episodeModel = EpisodeModel.fromJson(episode);
         episodeInstances.add(episodeModel);

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toonflix_app/models/webtoon_detail_model.dart';
 import 'package:toonflix_app/services/api_service.dart';
 import 'package:toonflix_app/models/episode_model.dart';
-import 'package:url_launcher/link.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class WebtoonScreen extends StatefulWidget {
@@ -25,6 +25,9 @@ class _WebtoonScreenState extends State<WebtoonScreen> {
 
   late final Future<WebtoonDetailModel> webtoonDetail;
   late final Future<List<EpisodeModel>> episodes;
+  late final SharedPreferences prefs;
+  late List<String>? likeIDs;
+  bool isLike = false;
 
   @override
   void initState() {
@@ -32,6 +35,42 @@ class _WebtoonScreenState extends State<WebtoonScreen> {
     super.initState();
     webtoonDetail = apiService.getWebToonDetailById(widget.id);
     episodes = apiService.getEpisodesById(widget.id);
+    initPrefs();
+  }
+
+  void initPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    likeIDs = prefs.getStringList('likeIDs');
+
+    if (likeIDs != null) {
+      // likeIDs 존재
+      if (likeIDs!.contains(widget.id)) {
+        setState(() {
+          isLike = true;
+        });
+      } else {
+        setState(() {
+          isLike = false;
+        });
+      }
+    } else {
+      // likeIDs 존재하지 않음
+      likeIDs = [];
+      prefs.setStringList('likeIDs', likeIDs!);
+    }
+  }
+
+  void tappedLikeButton() {
+    setState(() {
+      isLike = !isLike;
+      if (isLike && likeIDs != null) {
+        likeIDs!.add(widget.id);
+      } else if (!isLike && likeIDs != null) {
+        likeIDs!.remove(widget.id);
+      }
+    });
+
+    prefs.setStringList('likeIDs', likeIDs!);
   }
 
   @override
@@ -39,6 +78,14 @@ class _WebtoonScreenState extends State<WebtoonScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            onPressed: () {
+              tappedLikeButton();
+            },
+            icon: Icon(isLike ? Icons.favorite : Icons.favorite_border),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -114,7 +161,7 @@ class _WebtoonScreenState extends State<WebtoonScreen> {
                       return SingleChildScrollView(
                         child: Column(
                           children: [
-                            for (var episode in episodes.reversed)
+                            for (var episode in episodes)
                               EpisodeButton(
                                 webtoonId: widget.id,
                                 episode: episode,
@@ -172,11 +219,17 @@ class EpisodeButton extends StatelessWidget {
                     child: Text(
                       overflow: TextOverflow.ellipsis,
                       episode.title!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   const IconButton(
                     onPressed: null,
-                    icon: Icon(Icons.chevron_right),
+                    icon: Icon(
+                      Icons.chevron_right,
+                      color: Colors.white,
+                    ),
                   )
                 ]),
           ),
